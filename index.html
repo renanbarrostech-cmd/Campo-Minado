@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campo Minado</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <main class="panel">
+
+    <header class="top">
+      <div class="pill">
+        <span class="icon">💣</span>
+        <span id="counter">010</span>
+      </div>
+
+      <button id="reiniciar" class="botao-reset" aria-label="Reiniciar jogo">↻</button>
+
+      <div class="pill">
+        <span class="icon">⏱</span>
+        <span id="timer">000</span>
+      </div>
+    </header>
+
+    <nav class="niveis">
+      <button class="chip ativo" data-nivel="easy">Fácil</button>
+      <button class="chip" data-nivel="medium">Médio</button>
+      <button class="chip" data-nivel="hard">Difícil</button>
+    </nav>
+
+    <div id="board" class="board"></div>
+
+    <p id="message" class="mensage"></p>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
