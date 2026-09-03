@@ -4,9 +4,14 @@ const COLS = 9;
 const MINES = 10;
 
 const DIRECTIONS = [
-  [-1, -1], [-1, 0], [-1, 1],
-  [0, -1],           [0, 1],
-  [1, -1],  [1, 0],  [1, 1],
+  [-1, -1],
+  [-1, 0],
+  [-1, 1],
+  [0, -1],
+  [0, 1],
+  [1, -1],
+  [1, 0],
+  [1, 1],
 ];
 
 function inside(r, c) {
@@ -38,8 +43,7 @@ function placeMines(safeRow, safeCol) {
 
     if (board[r][c].hasMine) continue;
 
-    const isSafeZone =
-      Math.abs(r - safeRow) <= 1 && Math.abs(c - safeCol) <= 1;
+    const isSafeZone = Math.abs(r - safeRow) <= 1 && Math.abs(c - safeCol) <= 1;
     if (isSafeZone) continue;
 
     board[r][c].hasMine = true;
@@ -64,6 +68,22 @@ function countNeighbors() {
   }
 }
 
+function reveal(r, c) {
+  if (!inside(r, c)) return;
+
+  const cell = board[r][c];
+  if (cell.revealed || cell.flagged) return;
+
+  cell.revealed = true;
+
+  if (cell.hasMine) return;
+  if (cell.neighbors > 0) return;
+
+  for (const [dr, dc] of DIRECTIONS) {
+    reveal(r + dr, c + dc);
+  }
+}
+
 function render() {
   elBoard.innerHTML = "";
 
@@ -74,7 +94,7 @@ function render() {
 
       let classes = "cell";
       if (cell.revealed) classes += " revealed";
-            if (cell.revealed && cell.neighbors > 0) {
+      if (cell.revealed && cell.neighbors > 0) {
         classes += ` v${cell.neighbors}`;
         div.textContent = cell.neighbors;
       }
@@ -102,7 +122,7 @@ elBoard.addEventListener("click", (e) => {
     firstClick = false;
   }
 
-  board[r][c].revealed = true;
+  reveal(r, c);
 
   render();
 });
