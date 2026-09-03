@@ -22,13 +22,24 @@ const elBoard = document.getElementById("board");
 
 let board = [];
 let firstClick = true;
+let gameOver = false;
 
 function createBoard() {
-  board = Array.from({ length: ROWS }, () =>
+  board = Array.from(
+    { length: ROWS },
+    () =>
+      Array.from({ length: COLS }, () => ({
+        hasMine: false,
+        revealed: false,
+        flagged: false,
+        neighbors: 0,
+      })),
+
     Array.from({ length: COLS }, () => ({
       hasMine: false,
       revealed: false,
       flagged: false,
+      exploded: false,
       neighbors: 0,
     })),
   );
@@ -84,6 +95,17 @@ function reveal(r, c) {
   }
 }
 
+function revealAllMines() {
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (board[r][c].hasMine) {
+        board[r][c].revealed = true;
+        board[r][c].flagged = false;
+      }
+    }
+  }
+}
+
 function render() {
   elBoard.innerHTML = "";
 
@@ -99,6 +121,14 @@ function render() {
         div.textContent = cell.neighbors;
       }
       if (cell.hasMine) div.textContent = "×";
+      if (cell.exploded) classes += " exploded";
+      div.className = classes;
+
+      if (cell.revealed && cell.hasMine) {
+        div.textContent = "✳";
+      } else if (cell.revealed && cell.neighbors > 0) {
+        div.textContent = cell.neighbors;
+      }
       div.className = classes;
 
       div.dataset.row = r;
@@ -110,6 +140,8 @@ function render() {
 }
 
 elBoard.addEventListener("click", (e) => {
+  if (gameOver) return;
+
   const target = e.target.closest(".cell");
   if (!target) return;
 
@@ -123,6 +155,12 @@ elBoard.addEventListener("click", (e) => {
   }
 
   reveal(r, c);
+
+  if (board[r][c].hasMine) {
+    gameOver = true;
+    board[r][c].exploded = true;
+    revealAllMines();
+  }
 
   render();
 });
