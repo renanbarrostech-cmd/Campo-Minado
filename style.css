@@ -1,50 +1,58 @@
 :root {
-  --fundo-pagina: #121211;
-  --fundo-painel: #1B1B19;
-  --celula-fechada: #3A3A37;
-  --celula-hover:   #454542;
-  --celula-aberta:  #232321;
-  --controle:       #2C2C2A;
-  --texto:          #F1EFE8;
-  --texto-suave:    #888780;
-  --borda:          #444441;
+  --bg-page: #121211;
+  --bg-panel: #1b1b19;
+  --cell-closed: #3a3a37;
+  --cell-hover: #454542;
+  --cell-open: #232321;
+  --control: #2c2c2a;
+  --text: #f1efe8;
+  --text-soft: #888780;
+  --border: #444441;
 
-  --n1: #85B7EB;
-  --n2: #97C459;
-  --n3: #F0997B;
-  --n4: #AFA9EC;
-  --n5: #FAC775;
-  --perigo: #F09595;
+  --n1: #85b7eb;
+  --n2: #97c459;
+  --n3: #f0997b;
+  --n4: #afa9ec;
+  --n5: #fac775;
+  --n6: #5dcaa5;
+  --n7: #ed93b1;
+  --n8: #b4b2a9;
 
-  --tamanho-celula: 34px;
-  --colunas: 9;
+  --danger: #f09595;
+
+  --cell-size: 34px;
+  --cols: 9;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 body {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--fundo-pagina);
-  font-family: 'Inter', system-ui, sans-serif;
-  color: var(--texto);
+  background: var(--bg-page);
+  font-family: "Inter", system-ui, sans-serif;
+  color: var(--text);
   padding: 20px;
 }
 
 .panel {
-  background: var(--fundo-painel);
+  background: var(--bg-panel);
   border-radius: 16px;
   padding: 20px;
+  max-width: 100%;
 }
-
-/* ---------- topo ---------- */
 
 .top {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   margin-bottom: 16px;
 }
 
@@ -52,7 +60,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--controle);
+  background: var(--control);
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 15px;
@@ -60,52 +68,142 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-.icon { font-size: 14px; opacity: 0.7; }
+.icon {
+  font-size: 14px;
+  opacity: 0.7;
+}
 
 .button-reset {
   width: 38px;
   height: 38px;
-  background: var(--controle);
+  background: var(--control);
   border: none;
   border-radius: 8px;
-  color: var(--texto);
+  color: var(--text);
   font-size: 18px;
   cursor: pointer;
   transition: background 0.15s ease;
 }
 
-.button-reset:hover { background: var(--celula-fechada); }
-.button-reset:active { transform: scale(0.94); }
+.button-reset:hover {
+  background: var(--cell-closed);
+}
 
-/* ---------- níveis ---------- */
+.button-reset:active {
+  transform: scale(0.94);
+}
 
-.levels { display: flex; gap: 6px; margin-bottom: 16px; }
+.levels {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
 
 .chip {
   background: transparent;
-  border: 1px solid var(--borda);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 5px 12px;
-  color: var(--texto-suave);
+  color: var(--text-soft);
   font-family: inherit;
   font-size: 13px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.chip:hover { color: var(--texto); border-color: var(--texto-suave); }
-
-.chip.ativo {
-  background: var(--texto);
-  border-color: var(--texto);
-  color: var(--fundo-painel);
+.chip:hover {
+  color: var(--text);
+  border-color: var(--text-soft);
 }
 
-/* ---------- tabuleiro ---------- */
+.chip.active {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg-panel);
+}
+
+.board-wrapper {
+  overflow-x: auto;
+}
 
 .board {
   display: grid;
-  grid-template-columns: repeat(var(--colunas), var(--tamanho-celula));
+  grid-template-columns: repeat(var(--cols), var(--cell-size));
   gap: 4px;
+  width: fit-content;
 }
 
+.cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cell-closed);
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.cell:hover {
+  background: var(--cell-hover);
+}
+
+.cell:active {
+  transform: scale(0.92);
+}
+
+.cell.revealed {
+  background: var(--cell-open);
+  cursor: default;
+}
+
+.cell.revealed:hover {
+  background: var(--cell-open);
+}
+
+.cell.revealed:active {
+  transform: none;
+}
+
+.cell.flag {
+  color: var(--danger);
+}
+
+.cell.exploded {
+  background: var(--danger);
+}
+
+.v1 { color: var(--n1); }
+.v2 { color: var(--n2); }
+.v3 { color: var(--n3); }
+.v4 { color: var(--n4); }
+.v5 { color: var(--n5); }
+.v6 { color: var(--n6); }
+.v7 { color: var(--n7); }
+.v8 { color: var(--n8); }
+
+.message {
+  margin-top: 16px;
+  min-height: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-soft);
+}
+
+@media (max-width: 768px) {
+  :root {
+    --cell-size: 28px;
+  }
+
+  body {
+    padding: 10px;
+  }
+
+  .panel {
+    padding: 14px;
+  }
+}

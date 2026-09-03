@@ -31,14 +31,16 @@
       </header>
 
       <nav class="levels">
-        <button class="chip ativo" data-nivel="easy">Fácil</button>
-        <button class="chip" data-nivel="medium">Médio</button>
-        <button class="chip" data-nivel="hard">Difícil</button>
+        <button class="chip active" data-level="easy">Fácil</button>
+        <button class="chip" data-level="medium">Médio</button>
+        <button class="chip" data-level="hard">Difícil</button>
       </nav>
 
-      <div id="board" class="board"></div>
+      <div class="board-wrapper">
+        <div id="board" class="board"></div>
+      </div>
 
-      <p id="message" class="menssage"></p>
+      <p id="message" class="message"></p>
     </main>
 
     <script src="script.js"></script>
