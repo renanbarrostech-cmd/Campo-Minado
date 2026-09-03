@@ -4,6 +4,8 @@ const COLS = 9;
 const MINES = 10;
 
 const elMessage = document.getElementById("message");
+const elCounter = document.getElementById("counter");
+const elTimer = document.getElementById("timer");
 
 const DIRECTIONS = [
   [-1, -1],
@@ -25,18 +27,12 @@ const elBoard = document.getElementById("board");
 let board = [];
 let firstClick = true;
 let gameOver = false;
+let flagsPlaced = 0;
+let seconds = 0;
+let timerId = null;
 
 function createBoard() {
-  board = Array.from(
-    { length: ROWS },
-    () =>
-      Array.from({ length: COLS }, () => ({
-        hasMine: false,
-        revealed: false,
-        flagged: false,
-        neighbors: 0,
-      })),
-
+  board = Array.from({ length: ROWS }, () =>
     Array.from({ length: COLS }, () => ({
       hasMine: false,
       revealed: false,
@@ -46,7 +42,6 @@ function createBoard() {
     })),
   );
 }
-
 function placeMines(safeRow, safeCol) {
   let placed = 0;
 
@@ -120,6 +115,28 @@ function checkWin() {
   return revealedCount === ROWS * COLS - MINES;
 }
 
+function format(n) {
+  return String(Math.max(0, Math.min(999, n))).padStart(3, "0");
+}
+
+function updateHUD() {
+  elCounter.textContent = format(MINES - flagsPlaced);
+  elTimer.textContent = format(seconds);
+}
+
+function startTimer() {
+  timerId = setInterval(() => {
+    seconds++;
+    updateHUD();
+    if (seconds >= 999) stopTimer();
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerId);
+  timerId = null;
+}
+
 function render() {
   elBoard.innerHTML = "";
 
@@ -130,23 +147,23 @@ function render() {
 
       let classes = "cell";
       if (cell.revealed) classes += " revealed";
-      if (cell.revealed && cell.neighbors > 0) {
-        classes += ` v${cell.neighbors}`;
-        div.textContent = cell.neighbors;
-      }
-      if (cell.hasMine) div.textContent = "×";
+      if (cell.flagged && !cell.revealed) classes += " flag";
       if (cell.exploded) classes += " exploded";
-      div.className = classes;
-
-      if (cell.revealed && cell.hasMine) {
-        div.textContent = "✳";
-      } else if (cell.revealed && cell.neighbors > 0) {
-        div.textContent = cell.neighbors;
+      if (cell.revealed && !cell.hasMine && cell.neighbors > 0) {
+        classes += ` v${cell.neighbors}`;
       }
       div.className = classes;
 
       div.dataset.row = r;
       div.dataset.col = c;
+
+      if (cell.flagged && !cell.revealed) {
+        div.textContent = "⚑";
+      } else if (cell.revealed && cell.hasMine) {
+        div.textContent = "✳";
+      } else if (cell.revealed && cell.neighbors > 0) {
+        div.textContent = cell.neighbors;
+      }
 
       elBoard.appendChild(div);
     }
@@ -166,22 +183,44 @@ elBoard.addEventListener("click", (e) => {
     placeMines(r, c);
     countNeighbors();
     firstClick = false;
+    startTimer();
   }
 
   reveal(r, c);
 
-  if (board[r][c].hasMine) {
+    if (board[r][c].hasMine) {
     gameOver = true;
     board[r][c].exploded = true;
     revealAllMines();
     elMessage.textContent = "Você perdeu. Tente de novo.";
+    stopTimer();
   } else if (checkWin()) {
     gameOver = true;
-    elMessage.textContent = "Você venceu! Parábens";
+    elMessage.textContent = "Você venceu!";
+    stopTimer();
   }
 
   render();
+  updateHUD();
+});
+
+elBoard.addEventListener("contextmenu", (e) => {
+  e.preventDefault();
+  if (gameOver || firstClick) return;
+
+  const target = e.target.closest(".cell");
+  if (!target) return;
+
+  const cell = board[Number(target.dataset.row)][Number(target.dataset.col)];
+  if (cell.revealed) return;
+
+  cell.flagged = !cell.flagged;
+  flagsPlaced += cell.flagged ? 1 : -1;
+
+  render();
+  updateHUD();
 });
 
 createBoard();
 render();
+updateHUD();
