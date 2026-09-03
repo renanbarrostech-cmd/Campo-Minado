@@ -1,11 +1,16 @@
-const ROWS = 9;
-const COLS = 9;
+let ROWS, COLS, MINES;
 
-const MINES = 10;
+const LEVELS = {
+  easy: { rows: 9, cols: 9, mines: 10 },
+  medium: { rows: 16, cols: 16, mines: 40 },
+  hard: { rows: 16, cols: 30, mines: 99 },
+};
 
 const elMessage = document.getElementById("message");
 const elCounter = document.getElementById("counter");
 const elTimer = document.getElementById("timer");
+const elRestart = document.getElementById("restart");
+const elLevels = document.querySelector(".levels");
 
 const DIRECTIONS = [
   [-1, -1],
@@ -115,6 +120,28 @@ function checkWin() {
   return revealedCount === ROWS * COLS - MINES;
 }
 
+function startGame(level) {
+  const config = LEVELS[level];
+  ROWS = config.rows;
+  COLS = config.cols;
+  MINES = config.mines;
+
+  createBoard();
+
+  gameOver = false;
+  firstClick = true;
+  flagsPlaced = 0;
+  seconds = 0;
+  stopTimer();
+
+  document.documentElement.style.setProperty("--cols", COLS);
+  elMessage.textContent = "";
+  elRestart.textContent = "↻";
+
+  render();
+  updateHUD();
+}
+
 function format(n) {
   return String(Math.max(0, Math.min(999, n))).padStart(3, "0");
 }
@@ -188,16 +215,18 @@ elBoard.addEventListener("click", (e) => {
 
   reveal(r, c);
 
-    if (board[r][c].hasMine) {
+  if (board[r][c].hasMine) {
     gameOver = true;
     board[r][c].exploded = true;
     revealAllMines();
     elMessage.textContent = "Você perdeu. Tente de novo.";
     stopTimer();
+    elRestart.textContent = "☹";
   } else if (checkWin()) {
     gameOver = true;
     elMessage.textContent = "Você venceu!";
     stopTimer();
+    elRestart.textContent = "☺";
   }
 
   render();
@@ -221,6 +250,18 @@ elBoard.addEventListener("contextmenu", (e) => {
   updateHUD();
 });
 
-createBoard();
-render();
-updateHUD();
+elRestart.addEventListener("click", () => {
+  const active = document.querySelector(".chip.active");
+  startGame(active.dataset.level);
+});
+
+elLevels.addEventListener("click", (e) => {
+  if (!e.target.classList.contains("chip")) return;
+
+  document.querySelector(".chip.active").classList.remove("active");
+  e.target.classList.add("active");
+
+  startGame(e.target.dataset.level);
+});
+
+startGame("easy");
