@@ -3,6 +3,8 @@ const COLS = 9;
 
 const MINES = 10;
 
+const elMessage = document.getElementById("message");
+
 const DIRECTIONS = [
   [-1, -1],
   [-1, 0],
@@ -106,6 +108,18 @@ function revealAllMines() {
   }
 }
 
+function checkWin() {
+  let revealedCount = 0;
+
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (board[r][c].revealed && !board[r][c].hasMine) revealedCount++;
+    }
+  }
+
+  return revealedCount === ROWS * COLS - MINES;
+}
+
 function render() {
   elBoard.innerHTML = "";
 
@@ -160,6 +174,10 @@ elBoard.addEventListener("click", (e) => {
     gameOver = true;
     board[r][c].exploded = true;
     revealAllMines();
+    elMessage.textContent = "Você perdeu. Tente de novo.";
+  } else if (checkWin()) {
+    gameOver = true;
+    elMessage.textContent = "Você venceu! Parábens";
   }
 
   render();
